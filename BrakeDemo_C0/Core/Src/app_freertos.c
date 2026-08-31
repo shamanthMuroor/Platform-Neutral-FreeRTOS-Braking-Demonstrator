@@ -22,7 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "../../ApplicationCode/Inc/SpeedEstimator.h"
+#include "../../PlatformAspects/PlatformSignals.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,6 +43,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+int sensor_flWheelSpeed = 20;
+int sensor_frWheelSpeed = 15;
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -49,7 +52,7 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 128 * 4
+  .stack_size = 512 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -104,12 +107,23 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN defaultTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	  printf("blink...\r\n");
-	  BSP_LED_Toggle(LED_GREEN);
-      osDelay(500);
+	/* Infinite loop */
+	for (;;) {
+		// mimicking values from actual sensor
+		sensor_flWheelSpeed += 1;
+		sensor_frWheelSpeed += 1;
+
+		printf("[C0-Platform] Received front-left speed = %d, front-right speed: %d\r\n", sensor_flWheelSpeed, sensor_frWheelSpeed);
+
+		(void) App_AverageFrontSpeed();
+
+		BSP_LED_Toggle(LED_GREEN);
+		osDelay(500);
+
+
+//	  printf("blink...\r\n");
+//	  BSP_LED_Toggle(LED_GREEN);
+//      osDelay(500);
   }
   /* USER CODE END defaultTask */
 }

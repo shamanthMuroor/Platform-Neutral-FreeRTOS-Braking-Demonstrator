@@ -1,0 +1,18 @@
+#ifndef PLATFORMSPECIFICATION_AH
+#define PLATFORMSPECIFICATION_AH
+
+#include "PlatformSignals.h"
+
+aspect PlatformSpecification {
+
+	advice get("int flWheelSpeed") : around() {
+        *tjp->result() = sensor_flWheelSpeed;
+    }
+    
+    advice get("int frWheelSpeed") : around() {
+        *tjp->result() = sensor_frWheelSpeed;
+    }
+
+};
+
+#endif
