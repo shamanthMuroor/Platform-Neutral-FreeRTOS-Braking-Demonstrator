@@ -23,7 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "../../ApplicationCode/Inc/SpeedEstimator.h"
+#include "../../PlatformAspects/PlatformSignals.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,7 +55,8 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-
+int sensor_flWheelSpeed = 20;
+int sensor_frWheelSpeed = 15;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -205,18 +207,26 @@ void initFunc() {
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
-{
-  /* USER CODE BEGIN 5 */
-  initFunc();
-  /* Infinite loop */
-  for(;;)
-  {
-	printf("Blink...\n\r");
-    BSP_LED_Toggle(LED_RED);
-    osDelay(1000);
-  }
-  /* USER CODE END 5 */
+void StartDefaultTask(void *argument) {
+	/* USER CODE BEGIN 5 */
+	initFunc();
+	/* Infinite loop */
+	for (;;) {
+		// mimicking values from actual sensor
+		sensor_flWheelSpeed += 1;
+		sensor_frWheelSpeed += 1;
+
+		printf("[H7-Platform] Received front-left speed = %d, front-right speed: %d\r\n", sensor_flWheelSpeed, sensor_frWheelSpeed);
+
+		(void) App_AverageFrontSpeed();
+
+		BSP_LED_Toggle(LED_GREEN);
+		osDelay(500);
+//		printf("Blink...\n\r");
+//		BSP_LED_Toggle(LED_RED);
+//		osDelay(1000);
+	}
+	/* USER CODE END 5 */
 }
 
 /**
