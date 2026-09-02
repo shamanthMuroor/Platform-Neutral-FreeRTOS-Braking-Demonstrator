@@ -1,0 +1,10 @@
+#ifndef PLATFORM_SIGNALS_H
+#define PLATFORM_SIGNALS_H
+
+typedef enum {
+	SIGNAL_FL_WHEEL_SPEED = 0,
+	SIGNAL_FR_WHEEL_SPEED,
+	SIGNAL_COUNT
+} SignalId;
+
+#endif

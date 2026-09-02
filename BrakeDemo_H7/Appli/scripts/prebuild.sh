@@ -6,9 +6,9 @@ ARM_GPP="C:\ST\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu
 
 PROJ="${1:-..}"
 ROOT="$PROJ/.."
-SRC="$PROJ/ApplicationCode"
-ASPECT_SRC="$PROJ/PlatformAspects"
-OUT="$PROJ/Debug/WeavedOutput"
+SRC="$PROJ/Application_Code"
+ASPECT_SRC="$PROJ/Platform_Aspects"
+OUT="$PROJ/Debug/Weaved_Output"
 
 
 echo "[PRE-BUILD] Compiling SpeedEstimator.cpp (C++) -> SpeedEstimator.o"
@@ -18,7 +18,7 @@ echo "============================="
 
 "C:\aspectc++\ag++.exe" -v 9\
   -p "$PROJ" \
-  -a "$ASPECT_SRC/PlatformSpecification.ah" \
+  -a "$ASPECT_SRC/platform_specification.ah" \
   --c_compiler $ARM_GPP \
   --keep_woven \
   --data_joinpoints \
@@ -28,7 +28,8 @@ echo "============================="
   -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb \
   -std=gnu++14 -O0 -g3 -ffunction-sections -fdata-sections \
   -fno-exceptions -fno-rtti -fno-use-cxa-atexit \
-  -I "$PROJ/ApplicationCode/Inc"
+  -I "$SRC/Inc" \
+  -I "$PROJ/Core/Inc/Signal_Store"
 
 if [ $? -ne 0 ]; then
   echo "[PRE-BUILD] FAILED"
