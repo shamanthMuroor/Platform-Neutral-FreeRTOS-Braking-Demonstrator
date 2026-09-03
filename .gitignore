@@ -8,7 +8,6 @@ Release/
 .metadata/
 RemoteSystemsTempFiles/
 .recommenders/
-*.launch
 
 # ---------------- STM32CubeMX (integrated in CubeIDE) ----------------
 *.ioc.bak
