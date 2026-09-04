@@ -2,6 +2,38 @@
 #define PLATFORM_SPECIFICATION_AH
 
 #include "platform_io.h"
+#include "ThrottleControl.h"
+#include <stdio.h>
+
+aspect Platform_IO_Specification {
+
+	advice get("% Input_throttle") : around() {
+		*tjp->result() = Platform_ReadSignal(SIGNAL_THROTTLE);
+	}
+	
+	advice set("% Output_motorCommand") : around() {
+		const int motorCommand = *tjp->arg<0>();
+		Platform_UpdateSignal(SIGNAL_MOTOR_COMMAND, motorCommand);
+	}
+};
+
+aspect Platform_Task_Activation {
+    advice execution("void Platform_ActivateThrottleCycle()") : after() {
+    	printf("Before executing weaved Runnable");
+        Throttle_Runnable();
+        printf("After executing weaved Runnable");
+    }
+};
+
+#endif
+
+
+// ==========================================================
+
+/* #ifndef PLATFORM_SPECIFICATION_AH
+#define PLATFORM_SPECIFICATION_AH
+
+#include "platform_io.h"
 
 aspect PlatformSpecification {
 
@@ -15,4 +47,5 @@ aspect PlatformSpecification {
 
 };
 
-#endif
+#endif */
+

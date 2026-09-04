@@ -15,3 +15,5 @@ int Platform_ReadSignal(SignalId signalId) {
 void Platform_UpdateSignal(SignalId signalId, int value) {
     SignalStore_Write(&signalStore, signalId, value);
 }
+
+void Platform_ActivateThrottleCycle(void) {}

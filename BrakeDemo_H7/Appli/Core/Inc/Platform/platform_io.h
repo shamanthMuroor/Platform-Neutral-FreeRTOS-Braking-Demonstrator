@@ -10,6 +10,7 @@ extern "C" {
 void Platform_InitSignals(void);
 int Platform_ReadSignal(SignalId signalId);
 void Platform_UpdateSignal(SignalId signalId, int value);
+void Platform_ActivateThrottleCycle(void);
 
 #ifdef __cplusplus
 }

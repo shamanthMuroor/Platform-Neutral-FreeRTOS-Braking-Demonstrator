@@ -17,6 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <platform_signals.h>
 #include "main.h"
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
@@ -24,7 +25,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "platform_io.h"
-#include "platform_signals.h"
 #include "SpeedEstimator.h"
 /* USER CODE END Includes */
 
@@ -55,6 +55,13 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 1024 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for throttleTask */
+osThreadId_t throttleTaskHandle;
+const osThreadAttr_t throttleTask_attributes = {
+  .name = "throttleTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* USER CODE BEGIN PV */
 int32_t sensor_flWheelSpeed = 20;
 int32_t sensor_frWheelSpeed = 15;
@@ -62,6 +69,7 @@ int32_t sensor_frWheelSpeed = 15;
 
 /* Private function prototypes -----------------------------------------------*/
 void StartDefaultTask(void *argument);
+void ThrottleTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -135,6 +143,9 @@ int main(void)
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
+  /* creation of throttleTask */
+  throttleTaskHandle = osThreadNew(ThrottleTask, NULL, &throttleTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -142,7 +153,6 @@ int main(void)
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
-
 
   /* USER CODE BEGIN BSP */
   /* -- Sample board code to send message over COM1 port ---- */
@@ -208,25 +218,46 @@ void initFunc() {
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument) {
-	/* USER CODE BEGIN 5 */
+void StartDefaultTask(void *argument)
+{
+  /* USER CODE BEGIN 5 */
 	initFunc();
 	/* Infinite loop */
 	for (;;) {
 		// mimicking values from actual sensor
-		sensor_flWheelSpeed += 1;
-		sensor_frWheelSpeed += 1;
-		Platform_UpdateSignal(SIGNAL_FL_WHEEL_SPEED, sensor_flWheelSpeed);
-		Platform_UpdateSignal(SIGNAL_FR_WHEEL_SPEED, sensor_frWheelSpeed);
-
-		printf("[H7-Platform] Received front-left speed = %ld, front-right speed: %ld\r\n", (long)sensor_flWheelSpeed, (long)sensor_frWheelSpeed);
-
-		(void) App_AverageFrontSpeed();
+//		sensor_flWheelSpeed += 1;
+//		sensor_frWheelSpeed += 1;
+//		Platform_UpdateSignal(SIGNAL_FL_WHEEL_SPEED, sensor_flWheelSpeed);
+//		Platform_UpdateSignal(SIGNAL_FR_WHEEL_SPEED, sensor_frWheelSpeed);
+//
+//		printf("[H7-Platform] Received front-left speed = %ld, front-right speed: %ld\r\n", (long)sensor_flWheelSpeed, (long)sensor_frWheelSpeed);
+//
+//		(void) App_AverageFrontSpeed();
 
 		BSP_LED_Toggle(LED_GREEN);
 		osDelay(500);
 	}
-	/* USER CODE END 5 */
+  /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_ThrottleTask */
+/**
+* @brief Function implementing the throttleTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ThrottleTask */
+void ThrottleTask(void *argument)
+{
+  /* USER CODE BEGIN ThrottleTask */
+  /* Infinite loop */
+  for(;;)
+  {
+	printf("[H7-Platform] Testing\r\n");
+	Platform_ActivateThrottleCycle();
+    osDelay(500);
+  }
+  /* USER CODE END ThrottleTask */
 }
 
 /**
