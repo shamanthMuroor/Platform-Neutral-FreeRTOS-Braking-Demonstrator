@@ -84,3 +84,40 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+
+# ---------------- MATLAB / Simulink ----------------
+# Auto-save and backup files
+*.asv
+*.autosave
+*.slxc
+
+# Simulink cache
+slprj/
+simulink_cache/
+
+# Code generation cache
+codegen/
+
+# MATLAB generated reports
+html/
+
+# Temporary MATLAB folders
+work/
+temp/
+
+# Coverage / testing artifacts
+coverage/
+*.mldatx
+
+
+# ---------------- Embedded Coder generated temporary files ----------------
+buildInfo.mat
+coderAssumptions.mat
+*_traceInfo.mat
+*_codeInfo.mat
+*_capi.mat
+rtw_proj.tmw
+
+# Generated executables
+*.mex*
