@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Slip_Calculation'.
 //
-// Model version                  : 1.0
+// Model version                  : 1.2
 // Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
-// C/C++ source code generated on : Fri Sep  4 16:12:01 2026
+// C/C++ source code generated on : Mon Sep  7 11:20:13 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex-M

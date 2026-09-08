@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Slip_Calculation'.
 //
-// Model version                  : 1.0
+// Model version                  : 1.2
 // Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
-// C/C++ source code generated on : Fri Sep  4 16:12:01 2026
+// C/C++ source code generated on : Mon Sep  7 11:20:13 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -14,17 +14,80 @@
 //
 #include "Slip_Calculation.h"
 #include <stdint.h>
+#include "Slip_Calculation_private.h"
+
+int32_t div_s32_floor(int32_t numerator, int32_t denominator)
+{
+  int32_t quotient;
+  if (denominator == 0) {
+    quotient = numerator >= 0 ? INT32_MAX : INT32_MIN;
+
+    // Divide by zero handler
+  } else {
+    uint32_t absDenominator;
+    uint32_t absNumerator;
+    uint32_t tempAbsQuotient;
+    bool quotientNeedsNegation;
+    absNumerator = numerator < 0 ? ~static_cast<uint32_t>(numerator) + 1U :
+      static_cast<uint32_t>(numerator);
+    absDenominator = denominator < 0 ? ~static_cast<uint32_t>(denominator) + 1U :
+      static_cast<uint32_t>(denominator);
+    quotientNeedsNegation = ((numerator < 0) != (denominator < 0));
+    tempAbsQuotient = absNumerator / absDenominator;
+    if (quotientNeedsNegation) {
+      absNumerator %= absDenominator;
+      if (absNumerator > 0U) {
+        tempAbsQuotient++;
+      }
+    }
+
+    quotient = quotientNeedsNegation ? -static_cast<int32_t>(tempAbsQuotient) :
+      static_cast<int32_t>(tempAbsQuotient);
+  }
+
+  return quotient;
+}
 
 // Model step function
 void Slip_Calculation::step()
 {
-  // Outport: '<Root>/local_wheel_slip' incorporates:
-  //   Inport: '<Root>/throttle'
+  int32_t u0;
+  uint16_t tmp;
+
+  // Switch: '<Root>/Switch ' incorporates:
+  //   Constant: '<Root>/Constant'
+  //   Inport: '<Root>/reference_speed'
+
+  if (Slip_Calculation_U.reference_speed > 0) {
+    tmp = Slip_Calculation_U.reference_speed;
+  } else {
+    tmp = 1U;
+  }
+
+  // Product: '<Root>/slip_ratio' incorporates:
+  //   Gain: '<Root>/Gain '
+  //   Inport: '<Root>/reference_speed'
   //   Inport: '<Root>/wheel_speed'
   //   Sum: '<Root>/speed_error'
+  //   Switch: '<Root>/Switch '
 
-  Slip_Calculation_Y.local_wheel_slip = static_cast<uint32_t>
-    (Slip_Calculation_U.throttle - Slip_Calculation_U.wheel_speed);
+  u0 = div_s32_floor((Slip_Calculation_U.reference_speed -
+                      Slip_Calculation_U.wheel_speed) * 1000,
+                     static_cast<int32_t>(tmp));
+
+  // Saturate: '<Root>/Saturation '
+  if (u0 > 1000) {
+    // Outport: '<Root>/local_wheel_slip'
+    Slip_Calculation_Y.local_wheel_slip = 1000U;
+  } else if (u0 < 0) {
+    // Outport: '<Root>/local_wheel_slip'
+    Slip_Calculation_Y.local_wheel_slip = 0U;
+  } else {
+    // Outport: '<Root>/local_wheel_slip'
+    Slip_Calculation_Y.local_wheel_slip = static_cast<uint16_t>(u0);
+  }
+
+  // End of Saturate: '<Root>/Saturation '
 }
 
 // Model initialize function

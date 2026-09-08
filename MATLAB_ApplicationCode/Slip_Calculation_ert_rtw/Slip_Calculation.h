@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Slip_Calculation'.
 //
-// Model version                  : 1.0
+// Model version                  : 1.2
 // Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
-// C/C++ source code generated on : Fri Sep  4 16:12:01 2026
+// C/C++ source code generated on : Mon Sep  7 11:20:13 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -35,13 +35,13 @@ class Slip_Calculation final
  public:
   // External inputs (root inport signals with default storage)
   struct ExtU_Slip_Calculation_T {
-    uint16_t throttle;                 // '<Root>/throttle'
+    uint16_t reference_speed;          // '<Root>/reference_speed'
     uint16_t wheel_speed;              // '<Root>/wheel_speed'
   };
 
   // External outputs (root outports fed by signals with default storage)
   struct ExtY_Slip_Calculation_T {
-    uint32_t local_wheel_slip;         // '<Root>/local_wheel_slip'
+    uint16_t local_wheel_slip;         // '<Root>/local_wheel_slip'
   };
 
   // Real-time Model Data Structure
@@ -102,12 +102,6 @@ class Slip_Calculation final
   // Real-Time Model
   RT_MODEL_Slip_Calculation_T Slip_Calculation_M;
 };
-
-//-
-//  These blocks were eliminated from the model due to optimizations:
-//
-//  Block '<Root>/Constant' : Unused code path elimination
-
 
 //-
 //  The generated code includes comments that allow you to trace directly
