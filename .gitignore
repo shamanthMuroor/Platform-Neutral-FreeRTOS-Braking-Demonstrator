@@ -87,10 +87,19 @@ dkms.conf
 
 
 # ---------------- MATLAB / Simulink ----------------
+build_slip_calculation.m
+
 # Auto-save and backup files
 *.asv
 *.autosave
 *.slxc
+*.m~
+*.slx.r*
+*.mdl.r*
+*.bak
+
+# Derived content-obscured files
+*.p
 
 # Simulink cache
 slprj/
@@ -98,6 +107,7 @@ simulink_cache/
 
 # Code generation cache
 codegen/
+sccprj/
 
 # MATLAB generated reports
 html/
@@ -110,6 +120,15 @@ temp/
 coverage/
 *.mldatx
 
+# Packaged app and toolbox files
+*.mlappinstall
+*.mltbx
+
+# Deployable archives
+*.ctf
+
+# Generated helpsearch folders
+helpsearch*/
 
 # ---------------- Embedded Coder generated temporary files ----------------
 buildInfo.mat
