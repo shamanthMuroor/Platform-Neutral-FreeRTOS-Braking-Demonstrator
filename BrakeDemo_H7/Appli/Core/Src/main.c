@@ -25,7 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "platform_io.h"
-#include "SpeedEstimator.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,7 +108,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  Platform_InitSignals();
+  Platform_InitSignals(0);
   /* USER CODE END Init */
 
   /* USER CODE BEGIN SysInit */

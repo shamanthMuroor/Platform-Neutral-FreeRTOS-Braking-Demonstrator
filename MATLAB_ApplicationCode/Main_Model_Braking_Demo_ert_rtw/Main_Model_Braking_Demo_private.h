@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Main_Model_Braking_Demo'.
 //
-// Model version                  : 1.10
+// Model version                  : 1.13
 // Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
-// C/C++ source code generated on : Wed Sep  9 09:16:47 2026
+// C/C++ source code generated on : Thu Sep 17 09:48:31 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex-M
