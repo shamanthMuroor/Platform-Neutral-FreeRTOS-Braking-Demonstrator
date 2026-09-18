@@ -12,5 +12,3 @@ int32_t Platform_ReadSignal(SignalId signalId) {
 void Platform_WriteSignal(SignalId signalId, int32_t value) {
     SignalBuffer_Write(signalId, value);
 }
-
-void Platform_ActivateThrottleCycle(void) {}

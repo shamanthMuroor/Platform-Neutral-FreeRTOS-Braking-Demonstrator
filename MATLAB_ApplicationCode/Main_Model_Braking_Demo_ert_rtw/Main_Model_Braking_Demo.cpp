@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Main_Model_Braking_Demo'.
 //
-// Model version                  : 1.13
+// Model version                  : 1.14
 // Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
-// C/C++ source code generated on : Thu Sep 17 09:48:31 2026
+// C/C++ source code generated on : Thu Sep 17 12:07:23 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -61,20 +61,6 @@ void Main_Model_Braking_Demo::initialize()
 void Main_Model_Braking_Demo::terminate()
 {
   // (no terminate code required)
-}
-
-// Root inports set method
-void Main_Model_Braking_Demo::setExternalInputs(const Main_Model_Braking_Demo::
-  ExtU_Main_Model_Braking_Demo_T *pExtU_Main_Model_Braking_Demo_T)
-{
-  Main_Model_Braking_Demo_U = *pExtU_Main_Model_Braking_Demo_T;
-}
-
-// Root outports get method
-const Main_Model_Braking_Demo::ExtY_Main_Model_Braking_Demo_T
-  &Main_Model_Braking_Demo::getExternalOutputs() const
-{
-  return Main_Model_Braking_Demo_Y;
 }
 
 // Constructor

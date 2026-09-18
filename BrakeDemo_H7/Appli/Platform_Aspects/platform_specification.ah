@@ -3,10 +3,14 @@
 
 #include "platform_io.h"
 #include "Main_Model_Braking_Demo.h"
+#include <stdio.h>
+
+
+
 
 aspect Platform_IO_Specification {
-
     advice execution("void Main_Model_Braking_Demo::step()") : before() {
+    	printf("[ASPECT] DO WE GET THIS?\r\n");
         Main_Model_Braking_Demo *model = tjp->that();
 
         model->setreference_speed((uint16_t)Platform_ReadSignal(SIGNAL_REFERENCE_SPEED));
@@ -26,6 +30,25 @@ aspect Platform_IO_Specification {
         Platform_WriteSignal(SIGNAL_FRONT_RIGHT_MOTOR_COMMAND, (int32_t)model->getfront_right_motor_command());
         Platform_WriteSignal(SIGNAL_FRONT_LEFT_SLIP_ACTIVE, model->getfront_left_slip_active() ? 1 : 0);
         Platform_WriteSignal(SIGNAL_FRONT_RIGHT_SLIP_ACTIVE, model->getfront_right_slip_active() ? 1 : 0);
+    }
+};
+
+aspect Platform_Task_Activation {
+private:
+	Main_Model_Braking_Demo braking_model;
+	bool braking_model_initialized = false;
+
+public:
+    advice execution("% Application_RunControlCycle(void)") : after() {
+    	if (!braking_model_initialized) {
+			braking_model.initialize();
+			braking_model_initialized = true;
+			printf("[ASPECT] Braking model initialized\r\n");
+		}
+		
+		printf("[ASPECT] Before executing woven runnable\r\n");
+		braking_model.step();
+		printf("[ASPECT] After executing woven runnable\r\n");
     }
 };
 

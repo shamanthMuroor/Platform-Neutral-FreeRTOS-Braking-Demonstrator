@@ -35,9 +35,9 @@ echo "APPCODE_FOLDERS: $APPCODE_FOLDERS"
 
 PROJECT_INCLUDE_FLAGS="-I $PROJ/Core/Inc/Platform"
 for include_folder in $APPCODE_FOLDERS
-do
-PROJECT_INCLUDE_FLAGS="$PROJECT_INCLUDE_FLAGS -I $include_folder"
-done
+	do
+		PROJECT_INCLUDE_FLAGS="$PROJECT_INCLUDE_FLAGS -I $include_folder"
+	done
 echo "PROJECT_INCLUDE_FLAGS: $PROJECT_INCLUDE_FLAGS" 
 
 
@@ -92,6 +92,26 @@ do
 		compiled_file_count=$((compiled_file_count + 1))
 	done
 done
+
+		echo "[PRE-BUILD] activation file: $PROJ/Core/Src/Platform/application_task_activation.c"
+		"C:\aspectc++\ag++.exe" \
+		  -p "$ROOT" \
+		  -a "$ASPECT_SRC/platform_specification.ah" \
+		  --c_compiler $ARM_GPP \
+		  --keep_woven \
+		  --data_joinpoints \
+		  --builtin_operators \
+		  --Xcompiler \
+		  -c "$PROJ/Core/Src/Platform/application_task_activation.c" -o "$OUT/application_task_activation.o" \
+		  -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -fno-threadsafe-statics \
+		  -std=gnu++14 -O0 -g3 -ffunction-sections -fdata-sections \
+		  -fno-exceptions -fno-rtti -fno-use-cxa-atexit \
+		  $PROJECT_INCLUDE_FLAGS
+		  
+		  if [ $? -ne 0 ]; then
+			echo "[PRE-BUILD] FAILED"
+		 	exit 1
+		  fi
 
 if [ "$compiled_file_count" -eq 0 ]; then
 	echo "[PRE-BUILD] ERROR: No .cpp files found in $APPLICATION_SRC"

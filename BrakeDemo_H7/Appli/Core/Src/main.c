@@ -17,7 +17,6 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <platform_signals.h>
 #include "main.h"
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
@@ -53,23 +52,29 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .stack_size = 1024 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityAboveNormal1,
 };
-/* Definitions for throttleTask */
-osThreadId_t throttleTaskHandle;
-const osThreadAttr_t throttleTask_attributes = {
-  .name = "throttleTask",
+/* Definitions for SimulatedInput */
+osThreadId_t SimulatedInputHandle;
+const osThreadAttr_t SimulatedInput_attributes = {
+  .name = "SimulatedInput",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+/* Definitions for ActuatorOutput */
+osThreadId_t ActuatorOutputHandle;
+const osThreadAttr_t ActuatorOutput_attributes = {
+  .name = "ActuatorOutput",
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-int32_t sensor_flWheelSpeed = 20;
-int32_t sensor_frWheelSpeed = 15;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void StartDefaultTask(void *argument);
-void ThrottleTask(void *argument);
+extern void SimulatedInputTask(void *argument);
+extern void ActuatorOutputTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -143,8 +148,11 @@ int main(void)
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-  /* creation of throttleTask */
-  throttleTaskHandle = osThreadNew(ThrottleTask, NULL, &throttleTask_attributes);
+  /* creation of SimulatedInput */
+  SimulatedInputHandle = osThreadNew(SimulatedInputTask, NULL, &SimulatedInput_attributes);
+
+  /* creation of ActuatorOutput */
+  ActuatorOutputHandle = osThreadNew(ActuatorOutputTask, NULL, &ActuatorOutput_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -154,10 +162,27 @@ int main(void)
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
 
+  /* Initialize leds */
+  BSP_LED_Init(LED_GREEN);
+  BSP_LED_Init(LED_BLUE);
+  BSP_LED_Init(LED_RED);
+
+  /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
+//  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
+
+  /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
+  BspCOMInit.BaudRate   = 115200;
+  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
+  BspCOMInit.StopBits   = COM_STOPBITS_1;
+  BspCOMInit.Parity     = COM_PARITY_NONE;
+  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
+  if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE)
+  {
+    Error_Handler();
+  }
+
   /* USER CODE BEGIN BSP */
   /* -- Sample board code to send message over COM1 port ---- */
-  printf("Welcome to STM32 world !\n\rApplication project is running...\n\r");
-  BSP_LED_On(LED_BLUE);
   /* USER CODE END BSP */
 
   /* Start scheduler */
@@ -221,43 +246,12 @@ void initFunc() {
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
-	initFunc();
-	/* Infinite loop */
 	for (;;) {
-		// mimicking values from actual sensor
-//		sensor_flWheelSpeed += 1;
-//		sensor_frWheelSpeed += 1;
-//		Platform_UpdateSignal(SIGNAL_FL_WHEEL_SPEED, sensor_flWheelSpeed);
-//		Platform_UpdateSignal(SIGNAL_FR_WHEEL_SPEED, sensor_frWheelSpeed);
-//
-//		printf("[H7-Platform] Received front-left speed = %ld, front-right speed: %ld\r\n", (long)sensor_flWheelSpeed, (long)sensor_frWheelSpeed);
-//
-//		(void) App_AverageFrontSpeed();
-
-		BSP_LED_Toggle(LED_GREEN);
-		osDelay(500);
+		printf("\nStarting BrakeControl Run\n\r");
+		Application_RunControlCycle();
+		osDelay(2000U);
 	}
   /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_ThrottleTask */
-/**
-* @brief Function implementing the throttleTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_ThrottleTask */
-void ThrottleTask(void *argument)
-{
-  /* USER CODE BEGIN ThrottleTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	printf("[H7-Platform] Testing\r\n");
-	Platform_ActivateThrottleCycle();
-    osDelay(500);
-  }
-  /* USER CODE END ThrottleTask */
 }
 
 /**
