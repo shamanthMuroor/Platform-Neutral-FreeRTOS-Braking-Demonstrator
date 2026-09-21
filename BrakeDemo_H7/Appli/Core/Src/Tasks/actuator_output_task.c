@@ -1,4 +1,3 @@
-#include "actuator_output_task.h"
 #include "platform_io.h"
 #include "main.h"
 #include "cmsis_os2.h"

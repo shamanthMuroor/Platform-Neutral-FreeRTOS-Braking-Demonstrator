@@ -6,8 +6,6 @@
 #include <stdio.h>
 
 
-
-
 aspect Platform_IO_Specification {
     advice execution("void Main_Model_Braking_Demo::step()") : before() {
     	printf("[ASPECT] DO WE GET THIS?\r\n");
