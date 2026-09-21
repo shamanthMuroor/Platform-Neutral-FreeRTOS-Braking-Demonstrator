@@ -17,7 +17,6 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <platform_signals.h>
 #include "main.h"
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
@@ -25,7 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "platform_io.h"
-#include "SpeedEstimator.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,6 +47,8 @@
 COM_InitTypeDef BspCOMInit;
 __IO uint32_t BspButtonState = BUTTON_RELEASED;
 
+I2C_HandleTypeDef hi2c2;
+
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
@@ -55,21 +56,37 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 1024 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for throttleTask */
-osThreadId_t throttleTaskHandle;
-const osThreadAttr_t throttleTask_attributes = {
-  .name = "throttleTask",
+/* Definitions for SimulatedInput */
+osThreadId_t SimulatedInputHandle;
+const osThreadAttr_t SimulatedInput_attributes = {
+  .name = "SimulatedInput",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+/* Definitions for ActuatorOutput */
+osThreadId_t ActuatorOutputHandle;
+const osThreadAttr_t ActuatorOutput_attributes = {
+  .name = "ActuatorOutput",
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for DisplayOutputTa */
+osThreadId_t DisplayOutputTaHandle;
+const osThreadAttr_t DisplayOutputTa_attributes = {
+  .name = "DisplayOutputTa",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* USER CODE BEGIN PV */
-int32_t sensor_flWheelSpeed = 20;
-int32_t sensor_frWheelSpeed = 15;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
+static void MX_GPIO_Init(void);
+static void MX_I2C2_Init(void);
 void StartDefaultTask(void *argument);
-void ThrottleTask(void *argument);
+extern void SimulatedInputTask(void *argument);
+extern void ActuatorOutputTask(void *argument);
+extern void DisplayOutputTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -108,7 +125,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  Platform_InitSignals();
+  Platform_InitSignals(0);
   /* USER CODE END Init */
 
   /* USER CODE BEGIN SysInit */
@@ -116,6 +133,8 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -143,8 +162,14 @@ int main(void)
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-  /* creation of throttleTask */
-  throttleTaskHandle = osThreadNew(ThrottleTask, NULL, &throttleTask_attributes);
+  /* creation of SimulatedInput */
+  SimulatedInputHandle = osThreadNew(SimulatedInputTask, NULL, &SimulatedInput_attributes);
+
+  /* creation of ActuatorOutput */
+  ActuatorOutputHandle = osThreadNew(ActuatorOutputTask, NULL, &ActuatorOutput_attributes);
+
+  /* creation of DisplayOutputTa */
+  DisplayOutputTaHandle = osThreadNew(DisplayOutputTask, NULL, &DisplayOutputTa_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -154,10 +179,24 @@ int main(void)
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
 
+  /* Initialize leds */
+  BSP_LED_Init(LED_GREEN);
+  BSP_LED_Init(LED_BLUE);
+  BSP_LED_Init(LED_RED);
+
+  /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
+  BspCOMInit.BaudRate   = 115200;
+  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
+  BspCOMInit.StopBits   = COM_STOPBITS_1;
+  BspCOMInit.Parity     = COM_PARITY_NONE;
+  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
+  if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE)
+  {
+    Error_Handler();
+  }
+
   /* USER CODE BEGIN BSP */
   /* -- Sample board code to send message over COM1 port ---- */
-  printf("Welcome to STM32 world !\n\rApplication project is running...\n\r");
-  BSP_LED_On(LED_BLUE);
   /* USER CODE END BSP */
 
   /* Start scheduler */
@@ -186,6 +225,73 @@ int main(void)
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
+}
+
+/**
+  * @brief I2C2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C2_Init(void)
+{
+
+  /* USER CODE BEGIN I2C2_Init 0 */
+
+  /* USER CODE END I2C2_Init 0 */
+
+  /* USER CODE BEGIN I2C2_Init 1 */
+
+  /* USER CODE END I2C2_Init 1 */
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.Timing = 0x00E063FF;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C2_Init 2 */
+
+  /* USER CODE END I2C2_Init 2 */
+
+}
+
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+
+  /* USER CODE END MX_GPIO_Init_1 */
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOF_CLK_ENABLE();
+
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -221,43 +327,12 @@ void initFunc() {
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
-	initFunc();
-	/* Infinite loop */
 	for (;;) {
-		// mimicking values from actual sensor
-//		sensor_flWheelSpeed += 1;
-//		sensor_frWheelSpeed += 1;
-//		Platform_UpdateSignal(SIGNAL_FL_WHEEL_SPEED, sensor_flWheelSpeed);
-//		Platform_UpdateSignal(SIGNAL_FR_WHEEL_SPEED, sensor_frWheelSpeed);
-//
-//		printf("[H7-Platform] Received front-left speed = %ld, front-right speed: %ld\r\n", (long)sensor_flWheelSpeed, (long)sensor_frWheelSpeed);
-//
-//		(void) App_AverageFrontSpeed();
-
-		BSP_LED_Toggle(LED_GREEN);
-		osDelay(500);
+		printf("\nStarting BrakeControl Run\n\r");
+		Application_RunControlCycle();
+		osDelay(2000U);
 	}
   /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_ThrottleTask */
-/**
-* @brief Function implementing the throttleTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_ThrottleTask */
-void ThrottleTask(void *argument)
-{
-  /* USER CODE BEGIN ThrottleTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	printf("[H7-Platform] Testing\r\n");
-	Platform_ActivateThrottleCycle();
-    osDelay(500);
-  }
-  /* USER CODE END ThrottleTask */
 }
 
 /**

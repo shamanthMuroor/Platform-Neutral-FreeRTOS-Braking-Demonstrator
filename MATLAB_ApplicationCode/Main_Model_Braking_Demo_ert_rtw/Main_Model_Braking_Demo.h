@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Main_Model_Braking_Demo'.
 //
-// Model version                  : 1.10
+// Model version                  : 1.14
 // Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
-// C/C++ source code generated on : Wed Sep  9 09:16:47 2026
+// C/C++ source code generated on : Thu Sep 17 12:07:23 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -78,17 +78,76 @@ class Main_Model_Braking_Demo final
   // Real-Time Model get method
   Main_Model_Braking_Demo::RT_MODEL_Main_Model_Braking_D_T * getRTM();
 
-  // Root inports set method
-  void setExternalInputs(const ExtU_Main_Model_Braking_Demo_T
-    *pExtU_Main_Model_Braking_Demo_T)
+  // Root inport: '<Root>/reference_speed' set method
+  void setreference_speed(uint16_t localArgInput)
   {
-    Main_Model_Braking_Demo_U = *pExtU_Main_Model_Braking_Demo_T;
+    Main_Model_Braking_Demo_U.reference_speed = localArgInput;
   }
 
-  // Root outports get method
-  const ExtY_Main_Model_Braking_Demo_T &getExternalOutputs() const
+  // Root inport: '<Root>/requested_brake' set method
+  void setrequested_brake(uint16_t localArgInput)
   {
-    return Main_Model_Braking_Demo_Y;
+    Main_Model_Braking_Demo_U.requested_brake = localArgInput;
+  }
+
+  // Root inport: '<Root>/front_left_grip_loss' set method
+  void setfront_left_grip_loss(uint16_t localArgInput)
+  {
+    Main_Model_Braking_Demo_U.front_left_grip_loss = localArgInput;
+  }
+
+  // Root inport: '<Root>/front_right_grip_loss' set method
+  void setfront_right_grip_loss(uint16_t localArgInput)
+  {
+    Main_Model_Braking_Demo_U.front_right_grip_loss = localArgInput;
+  }
+
+  // Root inport: '<Root>/front_left_wheel_speed' set method
+  void setfront_left_wheel_speed(uint16_t localArgInput)
+  {
+    Main_Model_Braking_Demo_U.front_left_wheel_speed = localArgInput;
+  }
+
+  // Root inport: '<Root>/front_right_wheel_speed' set method
+  void setfront_right_wheel_speed(uint16_t localArgInput)
+  {
+    Main_Model_Braking_Demo_U.front_right_wheel_speed = localArgInput;
+  }
+
+  // Root outport: '<Root>/front_left_wheel_slip' get method
+  uint16_t getfront_left_wheel_slip() const
+  {
+    return Main_Model_Braking_Demo_Y.front_left_wheel_slip;
+  }
+
+  // Root outport: '<Root>/front_right_wheel_slip' get method
+  uint16_t getfront_right_wheel_slip() const
+  {
+    return Main_Model_Braking_Demo_Y.front_right_wheel_slip;
+  }
+
+  // Root outport: '<Root>/front_left_motor_command' get method
+  uint16_t getfront_left_motor_command() const
+  {
+    return Main_Model_Braking_Demo_Y.front_left_motor_command;
+  }
+
+  // Root outport: '<Root>/front_right_motor_command' get method
+  uint16_t getfront_right_motor_command() const
+  {
+    return Main_Model_Braking_Demo_Y.front_right_motor_command;
+  }
+
+  // Root outport: '<Root>/front_left_slip_active' get method
+  bool getfront_left_slip_active() const
+  {
+    return Main_Model_Braking_Demo_Y.front_left_slip_active;
+  }
+
+  // Root outport: '<Root>/front_right_slip_active' get method
+  bool getfront_right_slip_active() const
+  {
+    return Main_Model_Braking_Demo_Y.front_right_slip_active;
   }
 
   // model initialize function

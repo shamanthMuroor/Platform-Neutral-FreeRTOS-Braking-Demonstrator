@@ -6,7 +6,7 @@ ARM_GPP="C:\ST\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu
 
 PROJ="${1:-..}"
 ROOT="$PROJ/.."
-SRC="$PROJ/ApplicationCode"
+SRC="$PROJ/MATLAB_ApplicationCode"
 ASPECT_SRC="$PROJ/PlatformAspects"
 OUT="$PROJ/Debug/WeavedOutput"
 

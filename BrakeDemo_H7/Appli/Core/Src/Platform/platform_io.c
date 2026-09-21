@@ -1,19 +1,14 @@
+#include "sigbuf.h"
 #include "platform_io.h"
-#include "signal_store.h"
 
-// Shared Store
-static SignalStore signalStore;
-
-void Platform_InitSignals(void) {
-	SignalStore_Init(&signalStore);
+void Platform_InitSignals(int32_t initial_value) {
+	SignalBuffer_Init(initial_value);
 }
 
-int Platform_ReadSignal(SignalId signalId) {
-    return SignalStore_Read(&signalStore, signalId);
+int32_t Platform_ReadSignal(SignalId signalId) {
+    return SignalBuffer_Read(signalId);
 }
 
-void Platform_UpdateSignal(SignalId signalId, int value) {
-    SignalStore_Write(&signalStore, signalId, value);
+void Platform_WriteSignal(SignalId signalId, int32_t value) {
+    SignalBuffer_Write(signalId, value);
 }
-
-void Platform_ActivateThrottleCycle(void) {}

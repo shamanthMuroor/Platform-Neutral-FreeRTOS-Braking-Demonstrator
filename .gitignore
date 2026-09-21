@@ -140,3 +140,5 @@ rtw_proj.tmw
 
 # Generated executables
 *.mex*
+
+OutputImages/

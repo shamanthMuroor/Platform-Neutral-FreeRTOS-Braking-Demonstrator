@@ -2,50 +2,52 @@
 #define PLATFORM_SPECIFICATION_AH
 
 #include "platform_io.h"
-#include "ThrottleControl.h"
+#include "Main_Model_Braking_Demo.h"
 #include <stdio.h>
 
-aspect Platform_IO_Specification {
 
-	advice get("% Input_throttle") : around() {
-		*tjp->result() = Platform_ReadSignal(SIGNAL_THROTTLE);
-	}
-	
-	advice set("% Output_motorCommand") : around() {
-		const int motorCommand = *tjp->arg<0>();
-		Platform_UpdateSignal(SIGNAL_MOTOR_COMMAND, motorCommand);
-	}
+aspect Platform_IO_Specification {
+    advice execution("void Main_Model_Braking_Demo::step()") : before() {
+    	printf("[ASPECT] DO WE GET THIS?\r\n");
+        Main_Model_Braking_Demo *model = tjp->that();
+
+        model->setreference_speed((uint16_t)Platform_ReadSignal(SIGNAL_REFERENCE_SPEED));
+        model->setrequested_brake((uint16_t)Platform_ReadSignal(SIGNAL_REQUESTED_BRAKE));
+        model->setfront_left_grip_loss((uint16_t)Platform_ReadSignal(SIGNAL_FRONT_LEFT_GRIP_LOSS));
+        model->setfront_right_grip_loss((uint16_t)Platform_ReadSignal(SIGNAL_FRONT_RIGHT_GRIP_LOSS));
+        model->setfront_left_wheel_speed((uint16_t)Platform_ReadSignal(SIGNAL_FRONT_LEFT_WHEEL_SPEED));
+        model->setfront_right_wheel_speed((uint16_t)Platform_ReadSignal(SIGNAL_FRONT_RIGHT_WHEEL_SPEED));
+    }
+
+    advice execution("void Main_Model_Braking_Demo::step()") : after() {
+        Main_Model_Braking_Demo *model = tjp->that();
+
+        Platform_WriteSignal(SIGNAL_FRONT_LEFT_WHEEL_SLIP, (int32_t)model->getfront_left_wheel_slip());
+        Platform_WriteSignal(SIGNAL_FRONT_RIGHT_WHEEL_SLIP, (int32_t)model->getfront_right_wheel_slip());
+        Platform_WriteSignal(SIGNAL_FRONT_LEFT_MOTOR_COMMAND, (int32_t)model->getfront_left_motor_command());
+        Platform_WriteSignal(SIGNAL_FRONT_RIGHT_MOTOR_COMMAND, (int32_t)model->getfront_right_motor_command());
+        Platform_WriteSignal(SIGNAL_FRONT_LEFT_SLIP_ACTIVE, model->getfront_left_slip_active() ? 1 : 0);
+        Platform_WriteSignal(SIGNAL_FRONT_RIGHT_SLIP_ACTIVE, model->getfront_right_slip_active() ? 1 : 0);
+    }
 };
 
 aspect Platform_Task_Activation {
-    advice execution("void Platform_ActivateThrottleCycle()") : after() {
-    	printf("Before executing weaved Runnable");
-        Throttle_Runnable();
-        printf("After executing weaved Runnable");
+private:
+	Main_Model_Braking_Demo braking_model;
+	bool braking_model_initialized = false;
+
+public:
+    advice execution("% Application_RunControlCycle(void)") : after() {
+    	if (!braking_model_initialized) {
+			braking_model.initialize();
+			braking_model_initialized = true;
+			printf("[ASPECT] Braking model initialized\r\n");
+		}
+		
+		printf("[ASPECT] Before executing woven runnable\r\n");
+		braking_model.step();
+		printf("[ASPECT] After executing woven runnable\r\n");
     }
 };
 
 #endif
-
-
-// ==========================================================
-
-/* #ifndef PLATFORM_SPECIFICATION_AH
-#define PLATFORM_SPECIFICATION_AH
-
-#include "platform_io.h"
-
-aspect PlatformSpecification {
-
-	advice get("int flWheelSpeed") : around() {
-        *tjp->result() = Platform_ReadSignal(SIGNAL_FL_WHEEL_SPEED);
-    }
-    
-    advice get("int frWheelSpeed") : around() {
-        *tjp->result() = Platform_ReadSignal(SIGNAL_FR_WHEEL_SPEED);
-    }
-
-};
-
-#endif */
-
