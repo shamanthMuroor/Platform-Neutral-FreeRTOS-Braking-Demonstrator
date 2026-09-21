@@ -1,4 +1,3 @@
-#include "simulated_input_generator.h"
 #include "platform_io.h"
 #include "cmsis_os2.h"
 #include <stdbool.h>
