@@ -295,25 +295,16 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void initFunc() {
-	  /* Initialize leds */
-	  BSP_LED_Init(LED_GREEN);
-	  BSP_LED_Init(LED_BLUE);
-	  BSP_LED_Init(LED_RED);
+int _write(int file, char *data, int length)
+{
+    int character_index;
+    (void)file;
 
-	  /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
-	  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
+    for (character_index = 0; character_index < length; character_index++) {
+        ITM_SendChar((uint32_t)data[character_index]);
+    }
 
-	  /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
-	  BspCOMInit.BaudRate   = 115200;
-	  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
-	  BspCOMInit.StopBits   = COM_STOPBITS_1;
-	  BspCOMInit.Parity     = COM_PARITY_NONE;
-	  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
-	  if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE)
-	  {
-	    Error_Handler();
-	  }
+    return length;
 }
 /* USER CODE END 4 */
 
@@ -328,7 +319,7 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	for (;;) {
-		printf("\nStarting BrakeControl Run\n\r");
+		printf("\nStarting BrakeControl Run\n\r"); //outputs in SWV ITM Data Console
 		Application_RunControlCycle();
 		osDelay(2000U);
 	}
