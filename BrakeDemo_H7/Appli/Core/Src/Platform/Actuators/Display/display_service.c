@@ -1,7 +1,5 @@
 /*
- * display_service.c
  *
- * Layer 4 implementation.
  *
  * Each text line maps one-to-one onto an SSD1306 page, because the font
  * cell height (8 px) equals the page height (8 px). Line N is page N.
