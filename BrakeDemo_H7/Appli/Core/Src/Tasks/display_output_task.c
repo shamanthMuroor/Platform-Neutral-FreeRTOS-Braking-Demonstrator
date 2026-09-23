@@ -1,3 +1,6 @@
+#include "brake_demo_screen.h"
+#include "cmsis_os2.h"
+
 void DisplayOutputTask(void *argument)
 {
     (void)argument;

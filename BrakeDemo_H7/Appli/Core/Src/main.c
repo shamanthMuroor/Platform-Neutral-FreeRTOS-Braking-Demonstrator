@@ -49,11 +49,11 @@ __IO uint32_t BspButtonState = BUTTON_RELEASED;
 
 I2C_HandleTypeDef hi2c2;
 
-/* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 1024 * 4,
+/* Definitions for BrakeControl */
+osThreadId_t BrakeControlHandle;
+const osThreadAttr_t BrakeControl_attributes = {
+  .name = "BrakeControl",
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for SimulatedInput */
@@ -70,11 +70,18 @@ const osThreadAttr_t ActuatorOutput_attributes = {
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for DisplayOutputTa */
-osThreadId_t DisplayOutputTaHandle;
-const osThreadAttr_t DisplayOutputTa_attributes = {
-  .name = "DisplayOutputTa",
+/* Definitions for DisplayOutput */
+osThreadId_t DisplayOutputHandle;
+const osThreadAttr_t DisplayOutput_attributes = {
+  .name = "DisplayOutput",
   .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for Diagnostic */
+osThreadId_t DiagnosticHandle;
+const osThreadAttr_t Diagnostic_attributes = {
+  .name = "Diagnostic",
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* USER CODE BEGIN PV */
@@ -83,10 +90,11 @@ const osThreadAttr_t DisplayOutputTa_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 static void MX_GPIO_Init(void);
 static void MX_I2C2_Init(void);
-void StartDefaultTask(void *argument);
+void BrakeControlTask(void *argument);
 extern void SimulatedInputTask(void *argument);
 extern void ActuatorOutputTask(void *argument);
 extern void DisplayOutputTask(void *argument);
+extern void DiagnosticTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -159,8 +167,8 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  /* creation of BrakeControl */
+  BrakeControlHandle = osThreadNew(BrakeControlTask, NULL, &BrakeControl_attributes);
 
   /* creation of SimulatedInput */
   SimulatedInputHandle = osThreadNew(SimulatedInputTask, NULL, &SimulatedInput_attributes);
@@ -168,8 +176,11 @@ int main(void)
   /* creation of ActuatorOutput */
   ActuatorOutputHandle = osThreadNew(ActuatorOutputTask, NULL, &ActuatorOutput_attributes);
 
-  /* creation of DisplayOutputTa */
-  DisplayOutputTaHandle = osThreadNew(DisplayOutputTask, NULL, &DisplayOutputTa_attributes);
+  /* creation of DisplayOutput */
+  DisplayOutputHandle = osThreadNew(DisplayOutputTask, NULL, &DisplayOutput_attributes);
+
+  /* creation of Diagnostic */
+  DiagnosticHandle = osThreadNew(DiagnosticTask, NULL, &Diagnostic_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -308,14 +319,14 @@ int _write(int file, char *data, int length)
 }
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_BrakeControlTask */
 /**
-  * @brief  Function implementing the defaultTask thread.
+  * @brief  Function implementing the BrakeControl thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+/* USER CODE END Header_BrakeControlTask */
+void BrakeControlTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	for (;;) {

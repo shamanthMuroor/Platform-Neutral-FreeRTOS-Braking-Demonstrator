@@ -8,7 +8,7 @@
 
 void SimulatedInputTask() {
     uint32_t elapsed_cycles    = 0U;
-    int32_t  reference_speed   = 250;
+    int32_t  reference_speed   = 850;
 
     Platform_WriteSignal(SIGNAL_REQUESTED_BRAKE,        0);
     Platform_WriteSignal(SIGNAL_FRONT_LEFT_GRIP_LOSS,   0);
