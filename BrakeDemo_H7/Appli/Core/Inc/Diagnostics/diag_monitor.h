@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 void Diag_CheckReferenceSpeed(void);
+//uint8_t Diag_IsReferenceSpeedFaultActive(void);
 
 #ifdef __cplusplus
 }
